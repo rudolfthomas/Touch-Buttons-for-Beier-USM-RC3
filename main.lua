@@ -1,9 +1,11 @@
 -- Lua SwitchBox for Beier SFR-1 widget V0.1 - LIGHT
 --
 --
--- A Radiomaster TX16S widget for the EdgeTX OS to simulate a SWTBOX
+-- A Radiomaster TX16S widget for the EdgeTX OS to simulate Light on a USM-RC 3
 --
--- Author: Dieter Bruse http://bruse-it.com/
+-- Original Author: Dieter Bruse http://bruse-it.com/
+-- Modifications by Thomas RUDOLF
+--
 --
 -- This file is part of a free Widgetlibrary.
 --
@@ -19,10 +21,10 @@
 --
 -- You should have received a copy of the GNU General Public License
 -- along with this program; if not, see <http://www.gnu.org/licenses>.
-local log_filename = "/LOGS/USMRC3LIGHTWidget.txt"
-local name = "USM RC 3 LIGHT"
+local log_filename = "/LOGS/SBOXSFR1Widget.txt"
+local name = "LIGHTSWITCH"
 local touchedButton = -1
-local BitmapButton = Bitmap.open("/WIDGETS/USMRC3LIGHT/PNG/Btn0.png")
+local BitmapButton = Bitmap.open("/WIDGETS/LIGHTSWITCH/PNG/Btn0.png")
 local BitmapWidth, BitmapHeight = Bitmap.getSize(BitmapButton)
 
 local options = {
@@ -41,8 +43,7 @@ local LastActiveButton = 0
 --[	für das Steuerpad im Beier SFR-1/SFR-1-HL
 --[	####################################################################
 local KeyValues = {
-  Neutral = 0,
-Umschaltung = 720,
+Neutral = 0,
 Wert01 = 750,
 Wert02 = 665,
 Wert03 = 580,
@@ -61,7 +62,25 @@ Wert15 = -495,
 Wert16 = -580,
 Wert17 = -665,
 Wert18 = -750,
-
+Wert19 = 750,
+Wert20 = 665,
+Wert21 = 580,
+Wert22 = 495,
+Wert23 = 410,
+Wert24 = 325,
+Wert25 = 240,
+Wert26 = 155,
+Wert27 = 70,
+Wert28 = -70,
+Wert29 = -155,
+Wert30 = -240,
+Wert31 = -325,
+Wert33 = -410,
+Wert34 = -495,
+Wert35 = -580,
+Wert35 = -665,
+Wert36 = -750,
+Umschaltung = 1020
 }
 
 --[	####################################################################
@@ -71,7 +90,7 @@ local GlobalVarialble = {
   {GVarName="GV1",
   Index=0,
   Phase=0},
-  {GVarName="GV3",
+  {GVarName="GV2",
   Index=1,
   Phase=0}
 }
@@ -84,16 +103,12 @@ local buttonType = {
 
 --[	####################################################################
 --[	Konfiguration der Buttons 
---[	Cotrol im Widget (max. 2 Stk.)
+--[	Control im Widget (max. 2 Stk.)
 --[	 -> Pages (max. 2 Stück)
 --[	   -> Buttons max. 6 Stk./Page
 --[	####################################################################
 local configTable = {
-  {
-    -- Seite 1 Ebene 1
-    {
-
-
+  {{
 { Name="Licht +", FileName="001.png", Mode=buttonType.pushbutton,ROW=1,COL=1,Value=KeyValues.Wert01 },
 { Name="Licht -", FileName="002.png", Mode=buttonType.pushbutton,ROW=1,COL=2,Value=KeyValues.Wert02 },
 { Name="Blinker Links", FileName="003.png", Mode=buttonType.pushbutton,ROW=1,COL=3,Value=KeyValues.Wert03 },
@@ -106,69 +121,14 @@ local configTable = {
 { Name="Arbeitsscheinwerfer Hinten", FileName="010.png", Mode=buttonType.pushbutton,ROW=2,COL=4,Value=KeyValues.Wert10 },
 { Name="Arbeitsscheinwerfer Vorne", FileName="011.png", Mode=buttonType.pushbutton,ROW=2,COL=5,Value=KeyValues.Wert11 },
 { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=2,COL=6,Value=KeyValues.Wert12 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=1,Value=KeyValues.Wert13 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=2,Value=KeyValues.Wert14 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=3,Value=KeyValues.Wert15 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=4,Value=KeyValues.Wert16 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=5,Value=KeyValues.Wert17 },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=6,Value=KeyValues.Wert18 },
-    },
-    -- Seite 1 Ebene 2
-    {
-      { Name="Umschaltung", FileName="btn0.png", Mode=buttonType.switch,ROW=1,COL=1, Value=KeyValues.Umschaltung },
-      { Name="Sound vor", FileName="btn102.png", Mode=buttonType.pushbutton,ROW=1,COL=2,Value=KeyValues.Neutral },
-      { Name="Play / Pause", FileName="btn104.png", Mode=buttonType.pushbutton,ROW=1,COL=3, Value=KeyValues.Neutral },
-      { Name="Sound nach", FileName="btn103.png", Mode=buttonType.pushbutton,ROW=1,COL=4, Value=KeyValues.Neutral },
-      { Name="Sound aus/ein", FileName="btn56.png", Mode=buttonType.pushbutton,ROW=1,COL=5, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=1,COL=6,Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=1, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=2, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=3, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=4, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=5, Value=KeyValues.Neutral },
-      { Name="X", FileName="btn00.png", Mode=buttonType.pushbutton,ROW=2,COL=6, Value=KeyValues.Neutral },
-     
-    }
-  },
-  {
-    -- Seite 2 Ebene 1
-    {
-{ Name="Hupe", FileName="019.png", Mode=buttonType.pushbutton,ROW=1,COL=1,Value=KeyValues.Wert19 },
-{ Name="Rückfahrwarner ausschalten", FileName="020.png", Mode=buttonType.pushbutton,ROW=1,COL=2,Value=KeyValues.Neutral },
-{ Name="Fahrsound ein/aus", FileName="021.png", Mode=buttonType.pushbutton,ROW=1,COL=3,Value=KeyValues.Neutral },
-{ Name="Lautstärke +", FileName="022.png", Mode=buttonType.pushbutton,ROW=1,COL=4,Value=KeyValues.Neutral },
-{ Name="Lautstärke -", FileName="023.png", Mode=buttonType.pushbutton,ROW=1,COL=5,Value=KeyValues.Neutral },
-{ Name="Ton aus", FileName="024.png", Mode=buttonType.pushbutton,ROW=1,COL=6,Value=KeyValues.Neutral },
-{ Name="WAV-Player: Play/Stop", FileName="025.png", Mode=buttonType.pushbutton,ROW=2,COL=1,Value=KeyValues.Neutral },
-{ Name="WAV-Player: Pause", FileName="026.png", Mode=buttonType.pushbutton,ROW=2,COL=2,Value=KeyValues.Neutral },
-{ Name="WAV-Player: Titel vor", FileName="027.png", Mode=buttonType.pushbutton,ROW=2,COL=3,Value=KeyValues.Neutral },
-{ Name="WAV-Player: Titel zurück", FileName="028.png", Mode=buttonType.pushbutton,ROW=2,COL=4,Value=KeyValues.Neutral },
-{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=2,COL=5,Value=KeyValues.Wert29 },
-{ Name="Kein Button auf der Fernsteuerung", FileName="000.png", Mode=buttonType.pushbutton,ROW=2,COL=6,Value=KeyValues.Neutral },
--- { Name="Spiel mit Gaspedal", FileName="031.png", Mode=buttonType.pushbutton,ROW=3,COL=1,Value=KeyValues.Neutral },
--- { Name="Fahrsound Drehzahländerung", FileName="032.png", Mode=buttonType.pushbutton,ROW=3,COL=2,Value=KeyValues.Neutral },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=3,Value=KeyValues.Neutral },
--- { Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=4,Value=KeyValues.Neutral },
--- { Name="Kein Button auf der Fernsteuerung", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=5,Value=KeyValues.Neutral },
--- { Name="Kein Button auf der Fernsteuerung", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=6,Value=KeyValues.Neutral }
-    },
-    -- Seite 2 Ebene 2
-    {
-      { Name="Umschaltung", FileName="btn0.png", Mode=buttonType.switch,ROW=1,COL=1, Value=KeyValues.Umschaltung },
-      { Name="Sequenz 1", FileName="btn70.png", Mode=buttonType.pushbutton,ROW=1,COL=2,Value=KeyValues.Neutral },
-      { Name="Sequenz 2", FileName="btn71.png", Mode=buttonType.pushbutton,ROW=1,COL=3, Value=KeyValues.Neutral },
-      { Name="Sequenz 3", FileName="btn72.png", Mode=buttonType.pushbutton,ROW=1,COL=4, Value=KeyValues.Neutral },
-      { Name="Sequenz 4", FileName="btn73.png", Mode=buttonType.pushbutton,ROW=1,COL=5, Value=KeyValues.Neutral },
-      { Name="Sequenz 5", FileName="btn74.png", Mode=buttonType.pushbutton,ROW=1,COL=6, Value=KeyValues.Neutral },
-      { Name="Sequenz 6", FileName="btn75.png", Mode=buttonType.pushbutton,ROW=2,COL=1, Value=KeyValues.Neutral },
-      { Name="Sequenz 7", FileName="btn76.png", Mode=buttonType.pushbutton,ROW=2,COL=2, Value=KeyValues.Neutral },
-      { Name="Sequenz 8", FileName="btn77.png", Mode=buttonType.pushbutton,ROW=2,COL=3, Value=KeyValues.Neutral },
-      { Name="Multifunktion 1", FileName="btn78.png", Mode=buttonType.pushbutton,ROW=2,COL=4, Value=KeyValues.Neutral },
-      { Name="Multifunktion 2", FileName="btn79.png", Mode=buttonType.pushbutton,ROW=2,COL=5, Value=KeyValues.Neutral },
-      { Name="Multifunktion 3", FileName="btn80.png", Mode=buttonType.pushbutton,ROW=2,COL=6, Value=KeyValues.Neutral }
-    }
-  }
-}
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=1,Value=KeyValues.Wert13 },
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=2,Value=KeyValues.Wert14 },
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=3,Value=KeyValues.Wert15 },
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=4,Value=KeyValues.Wert16 },
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=5,Value=KeyValues.Wert17 },
+{ Name="RESERVE", FileName="000.png", Mode=buttonType.pushbutton,ROW=3,COL=6,Value=KeyValues.Wert18 }
+ },
+ }}
 
 local buttons = {}
 
@@ -199,7 +159,7 @@ end
 --[#####################################################################################################
 --[ CallBackFunktion wird aufgerufen wenn ein Button gedrückt wurde
 --[#####################################################################################################
-local function CallBackFunktion(ImageButton)
+local function CallBackFunktion(ImageButton, widget)
   local Value = ImageButton.globalVarValue
 --  lcd.drawText(0,180,"Button Pressed")
   if ImageButton.buttonState == buttonState.inactive then
@@ -222,8 +182,16 @@ local function CallBackFunktion(ImageButton)
     end
     ImageButton.buttonState = buttonState.inactive
   end
-  
+
   model.setGlobalVariable(GlobalVarialble[ActiveChannel].Index, GlobalVarialble[ActiveChannel].Phase, Value)
+  if Value ~= KeyValues.Neutral then
+    if ImageButton.buttonType == buttonType.switch then
+      playHaptic(20, 10 )
+      playHaptic(20, 0 )
+    else
+      playHaptic(15, 0 )
+    end
+  end
 end
 
 local function doNothing()
@@ -237,7 +205,6 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
     Image = Image,
     position = Position or { x = 0, y = 0, center = {}, bitmapScale = 100, radius = 0 },
     widgetposition = WidgetPosition or { x = 0, y = 0, center = {}, bitmapScale = 100, radius = 0 },
---[#####################################################################################################
     xmax = Position.x + W,
     ymax = Position.y + H,
     w = W,
@@ -256,6 +223,7 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
       if widget.zone.h < 84 then
         lcd.drawText(0,0,"Das Wideget benötigt min. 50% Ansicht in der Hoehe")
         lcd.drawText(0,15,"the widget need min. 50% view in hight")
+        lcd.drawText(0,30,"Size " .. widget.zone.w .. "/" .. widget.zone.h)
         return
       end
     end
@@ -265,6 +233,8 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
     else
       lcd.drawFilledCircle(pos.center.x, pos.center.y, pos.radius, widget.options.Border)
     end
+
+-- Zahl = Ringstärke der Kreise in weiß
 
     if self.buttonState == buttonState.inactive then
       lcd.drawFilledCircle(pos.center.x, pos.center.y, pos.radius - 2, widget.options.ButtonColor)
@@ -277,7 +247,7 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
   --[#####################################################################################################
   --[ Eventhandler für einen Button
   --[#####################################################################################################
-  function self.onEvent(event, touchState)
+  function self.onEvent(event, touchState, widget)
     write_log("self.OnEvent is entered at " .. self.ButtonName ,false)
     if event == nil then -- Widget mode
       -- Draw in widget mode. The size equals zone.w by zone.h
@@ -298,21 +268,21 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
               end
             end
             self.buttonSelected = true
-            return self.callBack(self)
+            return self.callBack(self, widget)
             -- When the finger first hits the screen
           elseif event == EVT_TOUCH_BREAK then
             if self.buttonType == buttonType.pushbutton or self.buttonType == buttonType.switch then
               self.buttonState = buttonState.inactive
             end
             self.buttonSelected = false
-            return self.callBack(self)
+            return self.callBack(self, widget)
             -- When the finger leaves the screen and did not slide on it
           elseif event == EVT_TOUCH_TAP then
             if self.buttonType == buttonType.pushbutton or self.buttonType == buttonType.switch then
               self.buttonState = buttonState.inactive
             end
             self.buttonSelected = false
-            return self.callBack(self)
+            return self.callBack(self, widget)
 
             -- A short tap gives TAP instead of BREAK
             -- touchState.tapCount shows number of taps
@@ -330,13 +300,13 @@ local function CreateButton(Position, WidgetPosition, W, H, ButtonName, Image, B
                 self.buttonState = buttonState.active
               end
             end
-            return self.callBack(self)
+            return self.callBack(self, widget)
           elseif event == EVT_VIRTUAL_ENTER then
             write_log("self.OnEvent EVT_VIRTUAL_ENTER.",false)
             if self.buttonType == buttonType.pushbutton or self.buttonType == buttonType.switch then
               self.buttonState = buttonState.inactive
             end
-            return self.callBack(self)
+            return self.callBack(self, widget)
           end
         end
         write_log("End of Eventcheck at self.OnEnvent", false)
@@ -353,18 +323,19 @@ local function CalculateFullscreen(row, col, widget)
   local WidgetPosition = { x = 0, y = 0, center = {}, bitmapScale = 100, radius = 0 }
 
   local Seitenrand = 4
-  local WidgetSeitenrand = 1
+  local WidgetSeitenrandX = 6
+  local WidgetSeitenrandY = 1
 
-  Position.x = ((Seitenrand + BitmapWidth) * col) - BitmapWidth
-  Position.y = ((Seitenrand + BitmapHeight) * row) - BitmapHeight
+  Position.x = ((Seitenrand + BitmapWidth) * col) - BitmapWidth 
+  Position.y = ((Seitenrand + BitmapHeight) * row) - BitmapHeight 
   Position.center = {x = (Position.x + BitmapWidth) - (BitmapWidth / 2), y = (Position.y + BitmapHeight) - (BitmapHeight / 2)}
   Position.radius = BitmapWidth / 2
 
-  WidgetPosition.bitmapScale = math.abs(((widget.zone.h / 2) / BitmapWidth ) * 100) - 5
+  WidgetPosition.bitmapScale = math.abs(((widget.zone.h / 2) / BitmapWidth ) * 100)
   local ScaledBitmapHight = BitmapWidth / 100 * WidgetPosition.bitmapScale
   local ScaledBitmapWidht = BitmapHeight / 100 *  WidgetPosition.bitmapScale
-  WidgetPosition.x = (WidgetSeitenrand + ScaledBitmapHight) * col - ScaledBitmapHight
-  WidgetPosition.y = (WidgetSeitenrand + ScaledBitmapWidht) * row - ScaledBitmapWidht
+  WidgetPosition.x = (WidgetSeitenrandX + ScaledBitmapHight) * col - ScaledBitmapHight +4
+  WidgetPosition.y = (WidgetSeitenrandY + ScaledBitmapWidht) * row - ScaledBitmapWidht -2
   WidgetPosition.center = {x = WidgetPosition.x + ScaledBitmapHight - (ScaledBitmapHight / 2)
                          , y = WidgetPosition.y + ScaledBitmapWidht - (ScaledBitmapWidht / 2)}
   WidgetPosition.radius = (BitmapWidth / 100 * WidgetPosition.bitmapScale) / 2
@@ -374,8 +345,8 @@ end
 
 --[#####################################################################################################
 --[ LoadConfig erzeugt Button aus einer Datenstruktur
---[ Die Radiomaster TX16s hat eine Auflösung von 480px * 272px,
---[ die Summer der Bilder wird nicht geprüft ob sie auch auf den Bildschirm passen. Also bitte vorher rechnen :)
+--[ Die Radiomaster TX16s hat eine Auflösung von 480px * 227px,
+--[ die Summe der Bilder wird nicht geprüft ob sie auch auf den Bildschirm passen. Also bitte vorher rechnen :)
 --[ Ändert sich die Bildhöhe muss zwingend die Variable ImageHight oben eingestellt werden.
 --[ ====================================================================================================
 local function LoadConfig(widget)
@@ -399,7 +370,7 @@ local function LoadConfig(widget)
                                 ,BitmapWidth
                                 ,BitmapHeight
                                 ,configTable[channel][page][idx].Name
-                                ,Bitmap.open("/WIDGETS/USMRC3LIGHT/PNG/" .. configTable[channel][page][idx].FileName)
+                                ,Bitmap.open("/WIDGETS/LIGHTSWITCH/PNG/" .. configTable[channel][page][idx].FileName)
                                 ,configTable[channel][page][idx].Mode
                                 ,configTable[channel][page][idx].Value
                                 , CallBackFunktion)
@@ -426,7 +397,7 @@ local function findTouched(event, touchState, widget)
             and touchState.y <= buttons[ActiveChannel][ActiveButtonPage][i].ymax then
             result = true
             write_log("findTouched found at [" .. buttons[ActiveChannel][ActiveButtonPage][i].ButtonName .. " Type:" ..buttons[ActiveChannel][ActiveButtonPage][i].buttonType, false)
-            buttons[ActiveChannel][ActiveButtonPage][i].onEvent(event, touchState);
+            buttons[ActiveChannel][ActiveButtonPage][i].onEvent(event, touchState, widget);
           end
         end
       else
@@ -437,6 +408,8 @@ local function findTouched(event, touchState, widget)
             else
               ActiveChannel = 1
             end
+            playHaptic(10, 5 )
+            playHaptic(10, 0 )
           end
         elseif event == EVT_VIRTUAL_NEXT then
           -- Als erstes den TouchState aufheben
@@ -468,7 +441,7 @@ local function findTouched(event, touchState, widget)
             LastActiveButton = getGlobalTimer()["session"]
             write_log("Umschaltung erkannt um:" .. LastActiveButton)
           end
-          buttons[ActiveChannel][ActiveButtonPage][touchedButton].onEvent(event, touchState)
+          buttons[ActiveChannel][ActiveButtonPage][touchedButton].onEvent(event, touchState, widget)
         elseif event == EVT_EXIT_FIRST or event == 1540 then
           if touchedButton ~= -1 then
             buttons[ActiveChannel][ActiveButtonPage][touchedButton].buttonSelected = false
@@ -516,6 +489,8 @@ local function refresh(widget, event, touchState)
       write_log("Automatic Switch-Reset! Inactive Time:" ..  getGlobalTimer()["session"] - LastActiveButton .. "s",false)
       LastActiveButton = 0
       ActiveButtonPage = 1
+      playHaptic(20, 10 )
+      playHaptic(20, 0 )
     end
 
   end
